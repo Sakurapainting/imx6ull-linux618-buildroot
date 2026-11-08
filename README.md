@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-2026-11-08：**M1 已通过验收，M2 主机侧构建与检查已通过**。Linux 6.18.62 的 ALPHA 板级 DTS、内核配置、内置 initramfs、zImage 和 DTB 均已构建，产物链和 RAM 加载区间检查通过。实板 TFTP/RAM 串口 shell 仍待执行；具体证据见 [M1 验收记录](docs/m1-validation.md) 和 [M2 验收记录](docs/m2-validation.md)。
+2026-11-08：**M1、M2 已通过验收**。Linux 6.18.62 的 ALPHA 板级 DTS、内核配置、内置 initramfs、zImage 和 DTB 均已构建，并从现有 U-Boot 经 TFTP 在 RAM 启动到串口 root shell；具体证据见 [M1 验收记录](docs/m1-validation.md) 和 [M2 验收记录](docs/m2-validation.md)。
 
 M0 尚未完成验收。用户已确认板卡为正点原子 ALPHA `ATK-DL6Y2C`，目前只有承载原系统的这张 SD 卡。串口接管后已核对存储布局、U-Boot 启动来源和文件加载命令；剩余为 PCB 版本、物理网口及接线确认，以及独立测试介质与恢复备份。逐项进度见 [移植计划](docs/bringup-plan.md)。
 
@@ -73,11 +73,11 @@ imx6ull-linux618-buildroot/
 - [M1 构建环境、命令与验证](docs/m1-build.md)
 - [M1 验收记录与产物摘要](docs/m1-validation.md)
 - [M2 构建、TFTP/RAM 启动与串口验证](docs/m2-build.md)
-- [M2 主机检查与实板待验收项](docs/m2-validation.md)
+- [M2 主机与实板验收记录](docs/m2-validation.md)
 - [源码签名与固定摘要](docs/source-verification/README.md)
 - [移植步骤与验收条件](docs/bringup-plan.md)
 - [现有板级信息与待确认项](docs/board-baseline.md)
 - [原系统恢复步骤与存储保护](docs/original-system-recovery.md)
 - [ALPHA 官方硬件资料与实板对应边界](docs/alpha-hardware-reference.md)
 
-下一步为 M2 实板验收：启用直连 TFTP 和串口，将 `output/m2/images/` 中的 zImage/DTB 加载到 `0x84000000`/`0x88000000`，从 RAM 启动并记录串口 shell。PCB 版本和物理网口标记仍待补充；当前 SD 卡继续保留原内容，未来准备独立测试卡时需要包含可用引导程序。
+下一步为 M3：在独立测试介质和恢复条件具备后适配 SD/eMMC 外置 rootfs。当前原 SD 卡继续保留原内容，PCB 版本和物理网口标记仍待补充；M4 再适配有线网络。

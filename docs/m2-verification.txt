@@ -12,4 +12,4 @@ e141d0daa480f484637417c29b497fb7e035ce49d5ff84215851dd89065646c9  /work/output/m
 a356b9082cccc139e0f490cd5a6bc38852f218ac0776245e4cabd30dcca67109  /work/output/m2/images/rootfs.cpio.gz
 ff826b3385c11671bd1ea7763f043b6d7b9fb09cba0666ee4c8e3c32b2425299  /work/output/m2/.config
 90cec0ffea461549a88de715560b6002d30e49723f064db6996ee1f31c5e19f3  /work/output/m2/build/linux-6.18.62/.config
-M2 host checks passed. Board RAM boot remains to be recorded.
+M2 host checks passed. Board acceptance is documented separately.

@@ -6,9 +6,10 @@
 
 - 项目目录：`/home/you/vm-dev/linux/imx6ull-linux618-buildroot`。
 - 旧工程及恢复镜像位于父目录：`/home/you/vm-dev/linux`。
-- 已进入并测试的是原 Linux 4.1.15，属于 M0 的原系统恢复与基线采集。它不是新 Linux 6.18/Buildroot 的启动测试。
-- M1 已于 2026-11-08 通过验收；M2 主机侧也已于 2026-11-08 通过：Linux 6.18.62、ALPHA DTS、内置 initramfs、zImage/DTB 和产物级校验均完成。实板 RAM 串口启动尚未执行。`br2-external/` 已加入 M1/M2 defconfig、Linux headers 摘要和 Linux 归档摘要。
+- M0 曾进入原 Linux 4.1.15 完成恢复与基线采集；M2 已另行进入新 Linux 6.18.62 / Buildroot 串口 shell。
+- M1、M2 均已于 2026-11-08 通过验收：Linux 6.18.62、ALPHA DTS、内置 initramfs、zImage/DTB、产物级校验和实板 RAM 串口 shell 均完成。`br2-external/` 已加入 M1/M2 defconfig、Linux headers 摘要和 Linux 归档摘要。
 - M0 尚有实物核对、独立测试介质和备份恢复待办；这些待办不阻止先开展 M1 构建。M2 的首次新系统启动采用 TFTP 加载、RAM 内置 initramfs。
+- 本次 M2 验收结束后，板子停在新系统的串口登录提示，串口已释放。断电后仍按原 SD 中的 U-Boot 环境启动；未执行 `saveenv`。
 
 ## M0 已做的工作
 
@@ -23,7 +24,7 @@
 | 核对网口资料 | 原 Linux `eth0` 为 SoC FEC2，PHY 地址 1；另一个 PHY 地址 2。两颗 ID 均为 `0x001cc816`，匹配 RTL8201F 驱动；原 DTB 复位配置、U-Boot 时钟配置和官方参考资料已对照，实物芯片型号未确认 | [板级基线](board-baseline.md)、[官方硬件对照](alpha-hardware-reference.md)、[原 DTB 反编译](../logs/m0/original-tftp-dtb.dts) |
 | 保存原系统恢复步骤 | 现有 SD/U-Boot 保留时，已验证通过主机 TFTP 恢复原 Linux 的步骤；原镜像大小和 SHA256 已记录 | [原系统恢复](original-system-recovery.md) |
 
-串口直接核对仅执行读取、切换当前 MMC 设备和加载文件片段至 RAM；未写入 SD/eMMC，也未执行 `saveenv`。最后一次板端操作结束时恢复 `mmc 0`，板子停在 U-Boot，串口已释放；新会话若需要操作板卡，应重新确认其当时状态。
+M0 串口直接核对仅执行读取、切换当前 MMC 设备和加载文件片段至 RAM；未写入 SD/eMMC，也未执行 `saveenv`。当时操作结束时恢复 `mmc 0` 并停在 U-Boot；M2 结束后的板端状态见上方记录，新会话操作前应重新确认。
 
 全部采集材料在 [logs/m0](../logs/m0/)；其中 [direct-evidence.sha256](../logs/m0/direct-evidence.sha256) 覆盖六份直接核对材料。`logs/` 已列入 `.gitignore`，原始日志目前保存在本机，不能假定将来只复制已跟踪文件也会带上日志。
 
@@ -47,14 +48,13 @@
 - 版本、最终产物 SHA256、验收边界见 [M1 验收记录](m1-validation.md)。详细日志在忽略的 `logs/m1/`，摘要和签名证据已纳入项目文件。
 - 构建使用普通用户 UID/GID 1000、8 路并发；总构建输出约 6.6 GiB。初次检查发现 Buildroot 向上读取父仓库版本标签，已在入口设置 Git ceiling 并修正最终编译器与 rootfs 的版本信息。
 
-## 新会话接续位置：M2 实板验收
+## 新会话接续位置：M3 外置 rootfs
 
-1. 阅读本文件、[M2 验收记录](m2-validation.md) 和 [移植计划 M2](bringup-plan.md#m2linux-618-启动到串口-shell)。需要重建 M1 时使用已有入口，无需重做原系统启动测试。
-2. 已完成板级 DTS、M2 Buildroot 配置、独立输出目录、zImage/DTB 和内置 initramfs；M1 配置及产物保留作为基线。
-3. 按 [M2 构建与 RAM 启动](m2-build.md) 恢复主机直连、串口权限和 TFTP 服务，使用 `0x84000000`/`0x88000000` 临时加载新产物。
-4. 上板时只使用临时 U-Boot 环境，TFTP 加载并从 RAM 启动，不沿用原系统 `root=/dev/mmcblk0p1`，不执行 `saveenv`。
+1. 阅读本文件、[M2 验收记录](m2-validation.md) 和 [移植计划](bringup-plan.md) 的 M3 部分。需要重建 M1/M2 时使用已有入口，无需重做原系统启动测试。
+2. M2 已在现有 U-Boot 上通过 TFTP/RAM 启动；串口日志位于 `logs/m2/board-ram-boot.log`，未写入 SD/eMMC。
+3. M3 需要独立测试介质和恢复条件，在此基础上启用 USDHC、分区和 ext4，逐步切换为外置 rootfs。
 
-M2 验收需要新 Linux 6.18.62 的串口 shell 和运行日志；M1 的主机检查不能代替实板启动。M0 剩余硬件与恢复待办保持如下。
+M2 已完成新 Linux 6.18.62 的串口 shell 和运行日志；M1 的主机检查不能代替实板启动。下一阶段为 M3 外置 rootfs，M0 剩余硬件与恢复待办保持如下。
 
 ## 保留的 M0 待办
 

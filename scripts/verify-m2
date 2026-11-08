@@ -53,4 +53,4 @@ python3 "$project_root/scripts/verify-rootfs.py" \
     "$images/rootfs.cpio" "$images/rootfs.cpio.gz" "$BUILDROOT_VERSION"
 sha256sum "$images/zImage" "$dtb" "$images/rootfs.cpio" \
     "$images/rootfs.cpio.gz" "$output/.config" "$kernel/.config"
-printf 'M2 host checks passed. Board RAM boot remains to be recorded.\n'
+printf 'M2 host checks passed. Board acceptance is documented separately.\n'

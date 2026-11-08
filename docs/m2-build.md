@@ -56,7 +56,7 @@ bootz 84000000 - 88000000
 
 ## 串口验收
 
-M2 的主机侧验证由 `scripts/verify-m2` 完成，检查内核配置、DTB、非压缩/压缩 cpio 一致性和启动文件。实板日志还需确认：
+M2 的主机侧验证由 `scripts/verify-m2` 完成，检查内核配置、DTB、非压缩/压缩 cpio 一致性和启动文件。实板日志已确认：
 
 ```text
 Linux version 6.18.62

@@ -1,0 +1,48 @@
+M2 board acceptance: PASS
+Date: 2026-11-08 (Asia/Shanghai)
+Source: logs/m2/board-ram-boot.log (selected serial output below)
+Full log SHA256: aa1ab1204d1fb1127afd34becbae99985ff0d8cef156b57bd503c9932f045f0e
+
+tftp 84000000 imx6ull-m2/zImage
+Bytes transferred = 13842752 (d33940 hex)
+tftp 88000000 imx6ull-m2/imx6ull-alpha.dtb
+Bytes transferred = 23211 (5aab hex)
+bootz 84000000 - 88000000
+[    0.000000] Linux version 6.18.62 (you@d10dfe72d56a) (arm-buildroot-linux-musleabihf-gcc.br_real (Buildroot 2026.08.1) 15.3.0, GNU ld (GNU Binutils) 2.45.1) #2 SMP Sun Nov  8 10:13:33 UTC 2026
+[    0.000000] OF: fdt: Machine model: ALPHA ATK-DL6Y2C i.MX6ULL
+[    0.000000] Kernel command line: console=ttymxc0,115200
+[    3.086303] Run /init as init process
+ALPHA i.MX6ULL M2 RAM initramfs
+imx6ull-alpha login: root
+
+uname -r
+6.18.62
+id
+uid=0(root) gid=0(root) groups=0(root),10(wheel)
+ps
+PID   USER     COMMAND
+    1 root     init
+   94 root     -sh
+mount
+rootfs on / type rootfs (rw,size=213336k,nr_inodes=53334)
+devtmpfs on /dev type devtmpfs (rw,relatime,size=213336k,nr_inodes=53334,mode=755)
+proc on /proc type proc (rw,relatime)
+sysfs on /sys type sysfs (rw,relatime)
+cat /proc/cmdline
+console=ttymxc0,115200
+cat /proc/meminfo
+MemTotal:         497328 kB
+cat /etc/os-release
+NAME=Buildroot
+VERSION=2026.08.1
+cat /proc/1/comm
+init
+echo M2_RAM_SHELL_PASS
+M2_RAM_SHELL_PASS
+
+Known non-blocking messages (preserved in the full log):
+WARNING: can't find /soc/aips-bus@02000000/ethernet@020b4000/mdio/ethernet-phy@2 node
+[    3.028847] faux_driver regulatory: Direct firmware load for regulatory.db failed with error -2
+[    3.028886] cfg80211: failed to load regulatory.db
+
+Final board state: M2 serial login prompt; host serial port released.

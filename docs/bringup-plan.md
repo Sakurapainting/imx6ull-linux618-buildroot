@@ -8,7 +8,7 @@
 
 ## M0：确认实板基线
 
-状态（2026-11-08）：**进行中，尚未完成验收**。原系统的 TFTP 启动已在 CachyOS 恢复，U-Boot、Linux、存储布局及文件加载能力已采集验证；用户确认型号为 ALPHA `ATK-DL6Y2C`，目前只有原 SD 卡。PCB 版本、物理网口及接线、独立测试介质和恢复备份仍有待办。M1 已通过主机侧验收，M2 主机侧构建已完成，实板 RAM 启动待执行。
+状态（2026-11-08）：**进行中，尚未完成验收**。原系统的 TFTP 启动已在 CachyOS 恢复，U-Boot、Linux、存储布局及文件加载能力已采集验证；用户确认型号为 ALPHA `ATK-DL6Y2C`，目前只有原 SD 卡。PCB 版本、物理网口及接线、独立测试介质和恢复备份仍有待办。M1、M2 已通过，M3～M6 待开始。
 
 1. 从串口记录现有系统完整上电日志，确认板型、DDR 容量、启动介质、U-Boot 版本、串口和网口。
 2. 在 U-Boot 中记录 `version`、`bdinfo`、`printenv`、`mmc list`；检查 `help bootz`、TFTP/SD 加载命令，以及内核、DTB 可用加载地址。
@@ -48,11 +48,11 @@
 - [原系统恢复步骤与存储保护](original-system-recovery.md)。
 - [ALPHA 官方硬件资料与实板对应边界](alpha-hardware-reference.md)：底板版本差异、ENET 原理图及引脚复用表对照。
 
-M1 已完成工具链和最小用户空间构建，M2 主机侧产物已准备好，首个上板目标保持为 RAM 串口 shell。PCB 版本和当前物理网口丝印仍待补充。首次新系统启动只临时设置 U-Boot 环境；当前原 SD 不作新 rootfs 的写入目标。备份及独立测试卡的具体步骤待读卡器和介质条件明确后制定，测试卡需要包含可用的 U-Boot。
+M1 已完成工具链和最小用户空间构建，M2 已通过 RAM 串口 shell 验收。PCB 版本和当前物理网口丝印仍待补充。M2 只临时设置 U-Boot 环境；当前原 SD 不作新 rootfs 的写入目标。备份及独立测试卡的具体步骤待读卡器和介质条件明确后制定，测试卡需要包含可用的 U-Boot。
 
 ## M1：建立新构建环境
 
-状态（2026-11-08）：**已通过验收**。独立容器、源码签名核验、Buildroot defconfig 与入口已建立，内部工具链和最小 rootfs 首次完整构建成功。GCC 15.3.0 的 ARM 编译、链接和 ELF 属性检查通过；rootfs 的 init、console、getty、动态加载器和账户所有权检查通过。具体操作见 [M1 构建说明](m1-build.md)，证据与产物摘要见 [M1 验收记录](m1-validation.md)。已完成的上板测试针对原 Linux 4.1.15，属于 M0；新 Linux 启动尚未执行。
+状态（2026-11-08）：**已通过验收**。独立容器、源码签名核验、Buildroot defconfig 与入口已建立，内部工具链和最小 rootfs 首次完整构建成功。GCC 15.3.0 的 ARM 编译、链接和 ELF 属性检查通过；rootfs 的 init、console、getty、动态加载器和账户所有权检查通过。具体操作见 [M1 构建说明](m1-build.md)，证据与产物摘要见 [M1 验收记录](m1-validation.md)。原 Linux 4.1.15 的上板测试属于 M0，新 Linux 6.18 启动已在 M2 完成。
 
 1. 为新项目建立单独的构建容器；现有 `dev-env/` 中的 GCC 4.9.4 环境用于旧 BSP 对照。
 2. 下载 `versions.env` 中固定版本的 Buildroot 和 Linux，核对官方签名，保存 SHA256 及签名验证记录。
@@ -66,7 +66,7 @@ M1 已完成工具链和最小用户空间构建，M2 主机侧产物已准备�
 
 ## M2：Linux 6.18 启动到串口 shell
 
-状态（2026-11-08）：**主机侧已通过，实板验收待执行**。已完成 ALPHA 板级 DTS、Linux 6.18.62 配置、内置 initramfs、zImage/DTB 构建，以及 DTB、内核配置、initramfs 内容和 RAM 加载区间检查。命令与产物摘要见 [M2 构建与 RAM 启动](m2-build.md)、[M2 验收记录](m2-validation.md)。
+状态（2026-11-08）：**已通过验收**。已完成 ALPHA 板级 DTS、Linux 6.18.62 配置、内置 initramfs、zImage/DTB 构建、产物检查，并通过现有 U-Boot 的 TFTP/RAM 路径进入串口 root shell。命令、产物和串口日志见 [M2 构建与 RAM 启动](m2-build.md)、[M2 验收记录](m2-validation.md)。
 
 1. 以 6.18 源码中的 i.MX6ULL EVK/SoC 设备树为参考，创建本项目的 ALPHA eMMC 板级 DTS，逐项核对电源、时钟、pinctrl、UART 和内存配置。
 2. 根据实板设置内存；最小版本移除旧 DTS 中面向显示的 320 MiB CMA 预留和无关外设，核对继承节点的状态。
@@ -78,7 +78,7 @@ M1 已完成工具链和最小用户空间构建，M2 主机侧产物已准备�
 
 产物：板级 DTS、Linux 配置、带 initramfs 的 zImage、配套 DTB 和串口日志。
 
-验收：日志明确显示 6.18.x，能在串口登录并执行 `uname -r`、`ps`、`mount`。此时使用 RAM 根文件系统，不要求 SD/eMMC 或网络已可用。
+验收：已完成。日志显示 6.18.62，能在串口登录并执行 `uname -r`、`ps`、`mount`；根文件系统为 RAM 内置 initramfs，未写入 SD/eMMC。网络仍留待 M4。
 
 排查顺序：内核无输出时查串口、DTB、加载地址和启动参数；内核已启动但没有 shell 时查 `/sbin/init`、解释器/动态加载器、`/dev/console` 与 getty。
 
