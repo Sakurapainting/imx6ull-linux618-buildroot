@@ -1,0 +1,16 @@
+[
+  {
+    "file": "alientek-alpha-enet1-reference.png",
+    "url": "https://wiki.alientek.com/assets/images/1.3.28-e2c5c22cb4bf7b5ab74f44a08c4b232e.png",
+    "sha256": "a4c3e182e036bf21a33b03a76ab9e07a93a5ca3a967b0b75c336f967878a3763",
+    "bytes": 393600,
+    "retrieved_date": "2026-11-07"
+  },
+  {
+    "file": "alientek-alpha-enet2-reference.png",
+    "url": "https://wiki.alientek.com/assets/images/1.3.29-f12937940f8329231d9dd181dc575151.png",
+    "sha256": "3cbd0cb07ea04fa16c8c7126b9f6488846bc132faef986414cac88ee8709ed66",
+    "bytes": 400814,
+    "retrieved_date": "2026-11-07"
+  }
+]
