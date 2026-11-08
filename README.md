@@ -8,11 +8,11 @@
 
 2026-11-08：**M1、M2 已通过验收**。Linux 6.18.62 的 ALPHA 板级 DTS、内核配置、内置 initramfs、zImage 和 DTB 均已构建，并从现有 U-Boot 经 TFTP 在 RAM 启动到串口 root shell；具体证据见 [M1 验收记录](docs/m1-validation.md) 和 [M2 验收记录](docs/m2-validation.md)。
 
-M3 **主机构建和产物校验已通过，实板验收待进行**：独立配置启用 SD/eMMC，已生成不带内置 rootfs 的常规 zImage、外置 ext4 和单独的 RAM 诊断 initramfs。用户确认仍只有原系统 SD 卡，外置 rootfs 写入与持久化验收等待测试介质和恢复条件。操作见 [M3 构建与存储检查](docs/m3-build.md)，证据见 [M3 验证记录](docs/m3-validation.md)。
+M3 **主机构建、产物校验及实板存储只读检查已通过，最终验收尚待完成**：Linux 6.18.62 已从独立 initramfs 启动，正确识别 USDHC1 的 SD 和 USDHC2 的 8 位 eMMC，三个原分区均只读挂载及文件读取成功。用户确认仍只有原系统 SD 卡，外置 Buildroot rootfs 写入与重启持久化验收等待测试介质和恢复条件。操作见 [M3 构建与存储检查](docs/m3-build.md)，证据见 [M3 验证记录](docs/m3-validation.md)。
 
 M0 尚未完成验收。用户已确认板卡为正点原子 ALPHA `ATK-DL6Y2C`，目前只有承载原系统的这张 SD 卡。串口接管后已核对存储布局、U-Boot 启动来源和文件加载命令；剩余为 PCB 版本、物理网口及接线确认，以及独立测试介质与恢复备份。逐项进度见 [移植计划](docs/bringup-plan.md)。
 
-实板确认使用 U-Boot 2016.03、512 MiB DDR（`0x80000000` 起始）。U-Boot 当前从 SD 启动，随后通过主机 TFTP 加载内核和 DTB，以同一 SD 卡上的 ext4 分区作为根文件系统；另可识别 7.28 GiB eMMC。两块存储的分区起始扇区已记录，`ext4load` 和 `fatload` 均已实际读取文件至 RAM。当前有线网络可通，MDIO 地址为 1、2，实测 PHY ID 均为 `0x001cc816`，与 Linux 驱动中的 RTL8201F 匹配；实物丝印和接线仍待核对。
+实板确认使用 U-Boot 2016.03、512 MiB DDR（`0x80000000` 起始）。原系统已验证的启动链为 SD 上的 U-Boot → 主机 TFTP 提供原内核/DTB → 同一 SD 的 ext4 根分区；当前运行的 M3 诊断系统则使用 RAM initramfs。M3 已识别 28.9 GiB SD 和 7.28 GiB eMMC，分区起始扇区与原基线一致。原系统及 U-Boot 的有线通信已验证；新 Linux 网口仍待 M4。MDIO 地址为 1、2，实测 PHY ID 均为 `0x001cc816`，与 Linux 驱动中的 RTL8201F 匹配；实物丝印和接线仍待核对。
 
 ## 技术路线
 
@@ -93,4 +93,4 @@ imx6ull-linux618-buildroot/
 - [原系统恢复步骤与存储保护](docs/original-system-recovery.md)
 - [ALPHA 官方硬件资料与实板对应边界](docs/alpha-hardware-reference.md)
 
-当前推进 M3 的主机构建和 RAM 存储只读检查；独立测试介质和恢复条件具备后再写入并验收外置 rootfs。原 SD 卡继续保留原内容，PCB 版本和物理网口标记仍待补充；M4 再适配有线网络。
+M3 的主机构建和 RAM 存储只读检查已通过；独立测试介质和恢复条件具备后再写入并验收外置 rootfs。原 SD 卡继续保留原内容，PCB 版本和物理网口标记仍待补充；M4 再适配有线网络。
