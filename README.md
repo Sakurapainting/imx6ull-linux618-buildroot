@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-2026-11-07：M0 进行中。已检查旧 BSP、建立项目骨架，并在 CachyOS 恢复原 Linux 4.1.15 的 TFTP 启动，进入实板 shell 并采集 Linux 基线。新内核/Buildroot 尚未下载、配置、编译或上板验证。
+2026-11-08：**M1 已通过验收**。独立 Debian/rootless Podman 环境、Linux 6.18.62 / Buildroot 2026.08.1 官方源码签名核验、内部工具链和最小 BusyBox rootfs 均已完成。GCC 15.3.0 已生成并链接 ARM EABIhf 程序，cpio 启动内容检查通过。新内核及实板启动属于后续 M2；具体证据见 [M1 验收记录](docs/m1-validation.md)。
 
 M0 尚未完成验收。用户已确认板卡为正点原子 ALPHA `ATK-DL6Y2C`，目前只有承载原系统的这张 SD 卡。串口接管后已核对存储布局、U-Boot 启动来源和文件加载命令；剩余为 PCB 版本、物理网口及接线确认，以及独立测试介质与恢复备份。逐项进度见 [移植计划](docs/bringup-plan.md)。
 
@@ -27,7 +27,7 @@ M0 尚未完成验收。用户已确认板卡为正点原子 ALPHA `ATK-DL6Y2C`�
 
 内核和用户空间拟由 Buildroot 统一构建，使用 Buildroot 内部工具链。初期沿用板上已有 U-Boot，兼容性在上板阶段验证。
 
-初始候选版本记录于 `versions.env`：Linux 6.18.62、Buildroot 2026.08.1。版本号已核对官方发布信息；归档签名、校验值、完整构建和板级兼容性尚未验证，不是已通过验收的版本组合。
+固定版本记录于 `versions.env`：Linux 6.18.62、Buildroot 2026.08.1。官方签名和归档摘要已核验，见 [源码验证记录](docs/source-verification/README.md)；板级兼容性仍待 M2 及后续里程碑验证。
 
 ## 目录
 
@@ -35,25 +35,39 @@ M0 尚未完成验收。用户已确认板卡为正点原子 ALPHA `ATK-DL6Y2C`�
 imx6ull-linux618-buildroot/
 ├── README.md
 ├── versions.env
+├── sources.lock.sha256
+├── dev-env/
+│   └── Containerfile
+├── scripts/
+│   ├── env
+│   ├── fetch-sources
+│   ├── build
+│   └── verify-m1
 ├── docs/
 │   ├── bringup-plan.md
-│   └── board-baseline.md
+│   ├── board-baseline.md
+│   └── m1-build.md
 └── br2-external/
+    ├── configs/imx6ull_m1_defconfig
+    ├── board/alpha/patches/linux-headers/linux-headers.hash
     ├── external.desc
     ├── external.mk
     └── Config.in
 ```
 
-`br2-external/` 当前只有基础入口。板级 DTS、Linux 配置、Buildroot defconfig、overlay 和构建脚本将在对应里程碑加入，不把未验证配置当作可用镜像交付。
+`br2-external/` 已包含 M1 defconfig 与 Linux headers 摘要。板级 DTS、Linux 配置和后续 overlay 在对应里程碑加入。
 
-源码下载、缓存和产物计划分别放到 `sources/`、`dl/`、`output/`。现有 BSP 在父目录中作为对照资料。
+源码、缓存和产物分别位于 `sources/`、`dl/`、`output/m1/`，均由 Git 忽略。现有 BSP 在父目录中作为对照资料。从零构建与验证命令见 [M1 构建说明](docs/m1-build.md)。
 
 ## 推进文档
 
-- [新会话接续 M1：M0 结果、约束和下一步](docs/m1-handoff.md)
+- [交接状态：M0/M1 结果、约束和 M2 下一步](docs/m1-handoff.md)
+- [M1 构建环境、命令与验证](docs/m1-build.md)
+- [M1 验收记录与产物摘要](docs/m1-validation.md)
+- [源码签名与固定摘要](docs/source-verification/README.md)
 - [移植步骤与验收条件](docs/bringup-plan.md)
 - [现有板级信息与待确认项](docs/board-baseline.md)
 - [原系统恢复步骤与存储保护](docs/original-system-recovery.md)
 - [ALPHA 官方硬件资料与实板对应边界](docs/alpha-hardware-reference.md)
 
-下一步可开展 M1 的新构建环境准备，首个上板目标为 M2 的 RAM 串口 shell。PCB 版本和物理网口标记仍待补充；当前 SD 卡继续保留原内容，未来准备独立测试卡时需要包含可用引导程序。
+下一步为 M2：适配板级 DTS、配置 Linux 6.18.62 并集成内置 initramfs，首次上板目标为 RAM 串口 shell。PCB 版本和物理网口标记仍待补充；当前 SD 卡继续保留原内容，未来准备独立测试卡时需要包含可用引导程序。

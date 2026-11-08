@@ -1,0 +1,26 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+buildroot-2026.08.1.tar.xz released Thu Oct 22 15:15:00 UTC 2026
+
+SHA1: 3596babb954fb711781b0d92761b9d0ff94a29e6  buildroot-2026.08.1.tar.xz
+SHA256: 34fb7bea8a213ffde39cc02e61703391560f26e0850f03138c722d0b09880f2b  buildroot-2026.08.1.tar.xz
+
+To verify this signature, you can obtain my public key
+from https://gitlab.com/-/snippets/4836881/raw/main/arnout@rnout.be.asc
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEGMffKBnBcz2CLVmepQDW7pyw5UAFAmraKDkACgkQpQDW7pyw
+5UDNwBAAr0K7oAe9NHVHEq/28riwF+hM+0hUF91GCa5HovcKXUOZkCXIl4OP4f7/
+FPxfy8vynrRKVBRBSfaisUY619/+fYrGTu0qrEupXQMdP70B+hastsFmw7tijLwS
+yofQGhM4cWZnB5KNb0MoYhyHNZ13DLe07+dvIvIPj5r6RZ/M04OMZWyQ3YC5+ZWm
+Q4F177hiin26bZ3RTBw0Uu9+lNpvx3JZOEwOBYKprtyY/EjnU0sDF1Yqcon5BRrW
++FmYip8Kbp27wEdFzVhowBfsURrisTyy5/ZAhpcz/D7lIHFW2PizNFxKItbHbKMU
+qKcM74Wh274rJgI6bFIE9sUVvHZU54t4AWyL381ZtNspfBibGvPreAzJcaVGXc6l
+J3Xajn88GQyVpCB/1T2PFCNp0NaAe9QVrUIN/JyRa6Y0lIniaa7kbNL9JM/JD3YO
+mQIBAzr4Ek8lqLEIAY11vMBDLUfn5A3+gmMAc9rvSjWBv7+82wVgfbZSAijmo8LF
+NeqdSChFAfeteY7CdYrmXsYXnI+Xb+sjapH7pm15fIOevPwDEtEO02ae1l3BMpUv
+rEXFtHwr5cdYQzy88cS9rkwhcnX5+NIVnDLPQpih1WXXSrWU2rggIITH1iXZQUPm
+STiNDOHsAZRZ8sf7d1D6+6HGYfydqHfLds+0YzfXRuaRqGIrE70=
+=UNEq
+-----END PGP SIGNATURE-----

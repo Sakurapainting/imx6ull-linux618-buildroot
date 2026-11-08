@@ -3,5 +3,6 @@
 /output/
 /logs/
 /local/
+/.wget-hsts
 *.swp
 *~

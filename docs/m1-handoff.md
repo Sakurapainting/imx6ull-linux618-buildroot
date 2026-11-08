@@ -1,13 +1,13 @@
 # M1 接续说明
 
-交接日期：2026-11-07。新会话从本文件接续 M1，详细步骤与验收条件以 [移植计划](bringup-plan.md) 为准。
+交接日期：2026-11-07；M1 进度更新：2026-11-08。详细步骤与验收条件以 [移植计划](bringup-plan.md) 为准，构建操作见 [M1 构建说明](m1-build.md)。
 
 ## 工作目录和阶段
 
 - 项目目录：`/home/you/vm-dev/linux/imx6ull-linux618-buildroot`。
 - 旧工程及恢复镜像位于父目录：`/home/you/vm-dev/linux`。
 - 已进入并测试的是原 Linux 4.1.15，属于 M0 的原系统恢复与基线采集。它不是新 Linux 6.18/Buildroot 的启动测试。
-- M1 尚未开始：新源码尚未下载，新构建容器、工具链、最小 rootfs 及新内核尚未构建。已有 `br2-external/` 仅为入口骨架。
+- M1 已于 2026-11-08 通过验收：独立 Debian 容器、新源码官方签名与摘要核验、内部工具链和最小 BusyBox rootfs 均已完成。GCC 15.3.0 已生成并链接 ARM EABIhf 程序，rootfs 内容检查通过；新内核尚未构建。`br2-external/` 已加入 M1 defconfig 与 Linux headers 摘要。
 - M0 尚有实物核对、独立测试介质和备份恢复待办；这些待办不阻止先开展 M1 构建。M2 的首次新系统启动采用 TFTP 加载、RAM 内置 initramfs。
 
 ## M0 已做的工作
@@ -36,17 +36,26 @@
 - 主机直连连接名为 `imx6ull-m0-direct`，绑定 `enp101s0f3u1c2`；主机地址 `192.168.10.100/24`，板卡 `192.168.10.50/24`。恢复连接及服务命令见恢复文档。
 - 调试串口为 `/dev/ttyUSB0`、115200、8N1，Linux 控制台为 `ttymxc0`。用户已退出 root 的 picocom 并为当前设备授予用户 `you` 读写权限；设备重插后需要重新检查权限及占用。M1 主机侧构建不需要接管串口。
 - 旧 `dev-env/` 使用 GCC 4.9.4，仅作旧 BSP 对照；为新项目准备独立构建环境和 Buildroot 内部工具链。
-- [versions.env](../versions.env) 记录候选 Linux `6.18.62`、Buildroot `2026.08.1`。归档签名、校验值与构建兼容性尚未验证；M1 下载时核对并保存记录，不将候选号表述为已验证版本组合。
+- [versions.env](../versions.env) 固定 Linux `6.18.62`、Buildroot `2026.08.1`。两份归档的官方签名及摘要已核验，公钥、签名者指纹和验证记录在 [源码验证记录](source-verification/README.md)。板级兼容性仍待后续验收。
 
-## 新会话从哪里开始
+## M1 已完成结果
 
-1. 先读本文件、[README](../README.md) 和 [移植计划 M1](bringup-plan.md#m1建立新构建环境)，按需查阅基线与恢复文档。基线中保留了排查过程，早期“待验证”文字需结合后续结果和末尾清单阅读。
-2. 检查 CachyOS 上可用的容器运行时、CPU/内存/磁盘资源及旧 `dev-env/` 的构建约定，创建本项目独立的构建环境。
-3. 获取固定版本源码，完成官方签名核对并保存 SHA256、签名验证记录及下载来源。
-4. 建立 Cortex-A7、32 位 ARM little-endian、EABIhf 的最小 Buildroot 配置和构建入口，使用独立输出目录、普通用户编译。
-5. 构建并验证交叉工具链和最小 BusyBox rootfs，保存 defconfig 与构建记录。M1 验收是交叉编译器可生成 ARM 目标文件、最小 rootfs 构建成功、版本及校验记录齐全。
+- 构建入口：`scripts/env`、`scripts/fetch-sources`、`scripts/build`、`scripts/verify-m1`。操作见 [M1 构建说明](m1-build.md)。
+- 配置：`br2-external/configs/imx6ull_m1_defconfig`，Cortex-A7、ARM little-endian、EABIhf、NEON/VFPv4、musl、BusyBox init、`ttymxc0/115200`。
+- 实际工具链：GCC `15.3.0`、binutils `2.45.1`、musl `1.2.6`、Linux headers `6.18.62`。用户空间 BusyBox `1.38.0`。
+- 产物：`output/m1/images/rootfs.cpio`（1,833,984 字节）和 `rootfs.cpio.gz`（995,021 字节）。373 项归档检查通过，包含 `/init`、`/dev/console`、动态加载器和串口 getty。
+- 版本、最终产物 SHA256、验收边界见 [M1 验收记录](m1-validation.md)。详细日志在忽略的 `logs/m1/`，摘要和签名证据已纳入项目文件。
+- 构建使用普通用户 UID/GID 1000、8 路并发；总构建输出约 6.6 GiB。初次检查发现 Buildroot 向上读取父仓库版本标签，已在入口设置 Git ceiling 并修正最终编译器与 rootfs 的版本信息。
 
-M2 才接入板级 DTS 与内核，制作内置 initramfs 的 zImage 并验证新 Linux 6.18 串口 shell。无需为了开始 M1 重做已成功的原系统启动测试。
+## 新会话接续位置：M2
+
+1. 阅读本文件、[M1 验收记录](m1-validation.md) 和 [移植计划 M2](bringup-plan.md#m2linux-618-启动到串口-shell)。需要重建 M1 时使用已有入口，无需重做原系统启动测试。
+2. 对照 `sources/linux-6.18.62/arch/arm/boot/dts/nxp/imx/` 的 i.MX6ULL EVK/SoC 设备树及 `logs/m0/original-tftp-dtb.dts`，创建本板 DTS。先核对内存、UART、电源/时钟及 pinctrl，移除显示预留与无关外设。
+3. 新建 M2 Buildroot 配置与独立输出目录，在 Buildroot 中集成 Linux、板级 DTS 和内置 initramfs；M1 配置及验收产物保留作为基线。
+4. 构建 zImage 与配套 DTB，再按实际尺寸计算 RAM 加载和解压区域。新 TFTP 产物使用独立名称/目录。
+5. 需要上板时重新确认串口、板卡状态和主机网络；使用临时 U-Boot 环境，TFTP 加载并从 RAM 启动，不沿用原系统 `root=/dev/mmcblk0p1`，不执行 `saveenv`。
+
+M2 验收需要新 Linux 6.18.62 的串口 shell 和运行日志；M1 的主机检查不能代替实板启动。M0 剩余硬件与恢复待办保持如下。
 
 ## 保留的 M0 待办
 

@@ -1,0 +1,14 @@
+[GNUPG:] PLAINTEXT 74 0
+[GNUPG:] NEWSIG
+gpg: Signature made Thu Oct 22 23:14:01 2026 CST
+gpg:                using RSA key 18C7DF2819C1733D822D599EA500D6EE9CB0E540
+[GNUPG:] KEY_CONSIDERED 18C7DF2819C1733D822D599EA500D6EE9CB0E540 0
+[GNUPG:] SIG_ID vqV4Yyn+UjRMo0/pQfcgEGPjBaA 2026-10-22 1792682041
+[GNUPG:] GOODSIG A500D6EE9CB0E540 Arnout Vandecappelle <arnout@rnout.be>
+gpg: Good signature from "Arnout Vandecappelle <arnout@rnout.be>" [unknown]
+gpg:                 aka "Arnout Vandecappelle <arnout.vandecappelle@essensium.com>" [unknown]
+[GNUPG:] VALIDSIG 18C7DF2819C1733D822D599EA500D6EE9CB0E540 2026-10-22 1792682041 0 4 0 1 10 01 18C7DF2819C1733D822D599EA500D6EE9CB0E540
+[GNUPG:] TRUST_UNDEFINED 0 pgp
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 18C7 DF28 19C1 733D 822D  599E A500 D6EE 9CB0 E540

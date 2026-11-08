@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$project_root"
+source versions.env
+mkdir -p sources/archives logs/m1 dl/linux
+fetch() {
+    local url="$1" dest="sources/archives/$2"
+    if [[ ! -f "$dest" ]]; then
+        curl --fail --location --retry 3 --connect-timeout 20 --speed-limit 1024 --speed-time 90 \
+            "$url" -o "$dest.part"
+        mv "$dest.part" "$dest"
+    fi
+}
+fetch "https://buildroot.org/downloads/buildroot-$BUILDROOT_VERSION.tar.xz" "buildroot-$BUILDROOT_VERSION.tar.xz"
+fetch "https://buildroot.org/downloads/buildroot-$BUILDROOT_VERSION.tar.xz.sign" "buildroot-$BUILDROOT_VERSION.tar.xz.sign"
+fetch "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$LINUX_VERSION.tar.xz" "linux-$LINUX_VERSION.tar.xz"
+fetch "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$LINUX_VERSION.tar.sign" "linux-$LINUX_VERSION.tar.sign"
+(cd sources/archives && sha256sum -c ../../sources.lock.sha256)
+
+# A separate keyring avoids changing the user's personal trust database.
+keyring="$(mktemp -d "$project_root/sources/verify-gnupg.XXXXXX")"
+trap 'rm -rf -- "$keyring"' EXIT
+gpg --homedir "$keyring" --batch --import docs/source-verification/keys/*.asc > logs/m1/source-key-import.log 2>&1
+gpg --homedir "$keyring" --batch --yes --status-fd 1 --output logs/m1/buildroot-signed-hashes.txt \
+    --decrypt "sources/archives/buildroot-$BUILDROOT_VERSION.tar.xz.sign" > logs/m1/buildroot-signature.log 2>&1
+grep -q '^\[GNUPG:\] VALIDSIG 18C7DF2819C1733D822D599EA500D6EE9CB0E540 ' logs/m1/buildroot-signature.log
+awk '/^SHA256: / {print $2 "  " $3}' logs/m1/buildroot-signed-hashes.txt > logs/m1/buildroot-signed.sha256
+test -s logs/m1/buildroot-signed.sha256
+(cd sources/archives && sha256sum -c ../../logs/m1/buildroot-signed.sha256)
+xz -dc "sources/archives/linux-$LINUX_VERSION.tar.xz" | \
+    gpg --homedir "$keyring" --batch --status-fd 1 \
+        --verify "sources/archives/linux-$LINUX_VERSION.tar.sign" - > logs/m1/linux-signature.log 2>&1
+grep -q '^\[GNUPG:\] VALIDSIG 647F28654894E3BD457199BE38DBBDC86092693E ' logs/m1/linux-signature.log
+for package in "buildroot-$BUILDROOT_VERSION" "linux-$LINUX_VERSION"; do
+    if [[ ! -d "sources/$package" ]]; then
+        tar -xJf "sources/archives/$package.tar.xz" -C sources
+    fi
+done
+# The kernel headers use the same verified archive, with Buildroot checking its hash too.
+cp --reflink=auto "sources/archives/linux-$LINUX_VERSION.tar.xz" "dl/linux/linux-$LINUX_VERSION.tar.xz"
+printf 'Sources verified and prepared. Signature logs: logs/m1/*-signature.log\n'

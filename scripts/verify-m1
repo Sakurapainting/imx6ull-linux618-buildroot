@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ "$project_root" != /work ]]; then
+    exec "$project_root/scripts/env" exec /work/scripts/verify-m1 "$@"
+fi
+source "$project_root/versions.env"
+output="$project_root/output/m1"
+probe="$output/probe"
+cross="$output/host/bin/arm-buildroot-linux-musleabihf-"
+mkdir -p "$probe"
+printf 'double add(double a, double b) { return a + b; }\nint main(void) { return add(1.0, 2.0) != 3.0; }\n' > "$probe/probe.c"
+"${cross}gcc" --version | head -1
+"${cross}gcc" --version | grep -Fq "Buildroot $BUILDROOT_VERSION)"
+"${cross}gcc" -dumpmachine
+"${cross}gcc" -c "$probe/probe.c" -o "$probe/probe.o"
+"${cross}gcc" "$probe/probe.c" -o "$probe/probe"
+file "$probe/probe.o" "$probe/probe"
+"${cross}readelf" -h -A "$probe/probe.o" > "$probe/elf-attributes.txt"
+cat "$probe/elf-attributes.txt"
+grep -q 'Class:.*ELF32' "$probe/elf-attributes.txt"
+grep -q 'little endian' "$probe/elf-attributes.txt"
+grep -q 'Machine:.*ARM' "$probe/elf-attributes.txt"
+grep -q 'Tag_CPU_arch: v7' "$probe/elf-attributes.txt"
+grep -q 'Tag_ABI_VFP_args: VFP registers' "$probe/elf-attributes.txt"
+"${cross}readelf" -l "$probe/probe" | grep 'interpreter: /lib/ld-musl-armhf.so.1'
+file "$output/target/bin/busybox"
+"${cross}readelf" -h -A "$output/target/bin/busybox"
+python3 "$project_root/scripts/verify-rootfs.py" "$output/images/rootfs.cpio" "$output/images/rootfs.cpio.gz" "$BUILDROOT_VERSION"
+sha256sum "$output"/images/rootfs.cpio* "$output/.config"
+printf 'M1 checks passed. Board boot remains an M2 check.\n'

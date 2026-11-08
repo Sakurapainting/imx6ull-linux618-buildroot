@@ -8,7 +8,7 @@
 
 ## M0：确认实板基线
 
-状态（2026-11-07）：**进行中，尚未完成验收**。原系统的 TFTP 启动已在 CachyOS 恢复，U-Boot、Linux、存储布局及文件加载能力已采集验证；用户确认型号为 ALPHA `ATK-DL6Y2C`，目前只有原 SD 卡。PCB 版本、物理网口及接线、独立测试介质和恢复备份仍有待办。M1～M6 尚未开始。
+状态（2026-11-08）：**进行中，尚未完成验收**。原系统的 TFTP 启动已在 CachyOS 恢复，U-Boot、Linux、存储布局及文件加载能力已采集验证；用户确认型号为 ALPHA `ATK-DL6Y2C`，目前只有原 SD 卡。PCB 版本、物理网口及接线、独立测试介质和恢复备份仍有待办。M1 已通过主机侧验收，M2～M6 尚未开始。
 
 1. 从串口记录现有系统完整上电日志，确认板型、DDR 容量、启动介质、U-Boot 版本、串口和网口。
 2. 在 U-Boot 中记录 `version`、`bdinfo`、`printenv`、`mmc list`；检查 `help bootz`、TFTP/SD 加载命令，以及内核、DTB 可用加载地址。
@@ -48,11 +48,11 @@
 - [原系统恢复步骤与存储保护](original-system-recovery.md)。
 - [ALPHA 官方硬件资料与实板对应边界](alpha-hardware-reference.md)：底板版本差异、ENET 原理图及引脚复用表对照。
 
-下一步可准备 M1 构建环境，首个上板目标保持为 M2 的 RAM 串口 shell。PCB 版本和当前物理网口丝印仍待补充。首次新系统启动只临时设置 U-Boot 环境；当前原 SD 不作新 rootfs 的写入目标。备份及独立测试卡的具体步骤待读卡器和介质条件明确后制定，测试卡需要包含可用的 U-Boot。
+M1 已完成工具链和最小用户空间构建，首个上板目标保持为 M2 的 RAM 串口 shell。PCB 版本和当前物理网口丝印仍待补充。首次新系统启动只临时设置 U-Boot 环境；当前原 SD 不作新 rootfs 的写入目标。备份及独立测试卡的具体步骤待读卡器和介质条件明确后制定，测试卡需要包含可用的 U-Boot。
 
 ## M1：建立新构建环境
 
-新会话接续前先读 [M1 接续说明](m1-handoff.md)。已完成的上板测试针对原 Linux 4.1.15，属于 M0；新 Linux 6.18/Buildroot 的构建与启动尚未执行。
+状态（2026-11-08）：**已通过验收**。独立容器、源码签名核验、Buildroot defconfig 与入口已建立，内部工具链和最小 rootfs 首次完整构建成功。GCC 15.3.0 的 ARM 编译、链接和 ELF 属性检查通过；rootfs 的 init、console、getty、动态加载器和账户所有权检查通过。具体操作见 [M1 构建说明](m1-build.md)，证据与产物摘要见 [M1 验收记录](m1-validation.md)。已完成的上板测试针对原 Linux 4.1.15，属于 M0；新 Linux 启动尚未执行。
 
 1. 为新项目建立单独的构建容器；现有 `dev-env/` 中的 GCC 4.9.4 环境用于旧 BSP 对照。
 2. 下载 `versions.env` 中固定版本的 Buildroot 和 Linux，核对官方签名，保存 SHA256 及签名验证记录。

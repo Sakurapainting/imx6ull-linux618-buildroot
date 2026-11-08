@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ "$project_root" != /work ]]; then
+    exec "$project_root/scripts/env" exec /work/scripts/build "$@"
+fi
+source "$project_root/versions.env"
+if [[ $(id -u) == 0 ]]; then
+    echo 'Run Buildroot as a normal user.' >&2; exit 1
+fi
+buildroot="$project_root/sources/buildroot-$BUILDROOT_VERSION"
+output="$project_root/output/m1"
+if [[ ! -f "$buildroot/Makefile" ]]; then
+    echo 'Prepare verified sources first: scripts/fetch-sources' >&2; exit 1
+fi
+if [[ ! -f "$output/.config" && "${1:-}" != imx6ull_m1_defconfig ]]; then
+    echo 'Configure first: scripts/build imx6ull_m1_defconfig' >&2; exit 1
+fi
+# BR2_JLEVEL controls package compilation; avoid top-level parallel make.
+# Extracted release tarballs must not inherit this project's Git version.
+export GIT_CEILING_DIRECTORIES="$project_root"
+exec make --no-print-directory -C "$buildroot" O="$output" \
+    BR2_EXTERNAL="$project_root/br2-external" BR2_DL_DIR="$project_root/dl" "$@"

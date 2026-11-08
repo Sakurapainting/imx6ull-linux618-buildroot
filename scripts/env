@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+image="${IMX6ULL_M1_IMAGE:-localhost/imx6ull-buildroot:2026.08.1}"
+action="${1:-shell}"
+if (( $# )); then shift; fi
+case "$action" in
+    image)
+        exec podman build -t "$image" -f "$project_root/dev-env/Containerfile" "$project_root/dev-env"
+        ;;
+    shell|exec) ;;
+    *) echo 'Usage: scripts/env [image|shell|exec COMMAND...]' >&2; exit 2 ;;
+esac
+if ! podman image exists "$image"; then
+    echo 'Build the container first: scripts/env image' >&2
+    exit 1
+fi
+args=(--rm --userns=keep-id --user "$(id -u):$(id -g)"
+      --volume "$project_root:/work" --workdir /work
+      --env LANG=C.UTF-8 --env LC_ALL=C.UTF-8)
+if [[ "$action" == shell ]]; then
+    args+=(-i)
+    if [[ -t 0 && -t 1 ]]; then args+=(-t); fi
+    set -- /bin/bash
+elif (( $# == 0 )); then
+    echo 'exec requires a command' >&2; exit 2
+fi
+exec podman run "${args[@]}" "$image" "$@"

@@ -1,0 +1,12 @@
+FROM docker.io/library/debian:bookworm-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc
+
+ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential bc bison flex gawk cpio unzip rsync file wget curl \
+       ca-certificates git python3 perl patch tar xz-utils bzip2 gzip \
+       libncurses-dev libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+CMD ["/bin/bash"]
