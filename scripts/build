@@ -9,11 +9,11 @@ if [[ $(id -u) == 0 ]]; then
     echo 'Run Buildroot as a normal user.' >&2; exit 1
 fi
 buildroot="$project_root/sources/buildroot-$BUILDROOT_VERSION"
-output="$project_root/output/m1"
+output="${IMX6ULL_BUILD_OUTPUT:-$project_root/output/m1}"
 if [[ ! -f "$buildroot/Makefile" ]]; then
     echo 'Prepare verified sources first: scripts/fetch-sources' >&2; exit 1
 fi
-if [[ ! -f "$output/.config" && "${1:-}" != imx6ull_m1_defconfig ]]; then
+if [[ ! -f "$output/.config" && "${1:-}" != imx6ull_m1_defconfig && "${1:-}" != imx6ull_m2_defconfig ]]; then
     echo 'Configure first: scripts/build imx6ull_m1_defconfig' >&2; exit 1
 fi
 # BR2_JLEVEL controls package compilation; avoid top-level parallel make.

@@ -1,0 +1,38 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "imx6ull.dtsi"
+
+/ {
+	model = "ALPHA ATK-DL6Y2C i.MX6ULL";
+	compatible = "alientek,atk-dl6y2c", "fsl,imx6ull";
+
+	chosen {
+		stdout-path = &uart1;
+	};
+
+	aliases {
+		serial0 = &uart1;
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x20000000>;
+	};
+};
+
+&iomuxc {
+	pinctrl_uart1_alpha: uart1-alpha-grp {
+		fsl,pins = <
+			MX6UL_PAD_UART1_TX_DATA__UART1_DCE_TX 0x1b0b1
+			MX6UL_PAD_UART1_RX_DATA__UART1_DCE_RX 0x1b0b1
+		>;
+	};
+};
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1_alpha>;
+	status = "okay";
+};

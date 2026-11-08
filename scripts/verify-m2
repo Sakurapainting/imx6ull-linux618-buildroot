@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ "$project_root" != /work ]]; then
+    exec "$project_root/scripts/env" exec /work/scripts/verify-m2 "$@"
+fi
+
+source "$project_root/versions.env"
+output="${IMX6ULL_BUILD_OUTPUT:-$project_root/output/m2}"
+images="$output/images"
+kernel="$output/build/linux-$LINUX_VERSION"
+probe="$output/probe-m2"
+dtb="$images/imx6ull-alpha.dtb"
+
+for path in "$output/.config" "$kernel/.config" "$images/zImage" \
+    "$dtb" "$images/rootfs.cpio" "$images/rootfs.cpio.gz"; do
+    test -s "$path" || { echo "missing or empty: $path" >&2; exit 1; }
+done
+
+mkdir -p "$probe"
+
+require_config() {
+    local name="$1" value="$2"
+    grep -Fxq "$name=$value" "$kernel/.config" || {
+        echo "kernel config mismatch: expected $name=$value" >&2
+        exit 1
+    }
+}
+
+require_config CONFIG_BLK_DEV_INITRD y
+require_config CONFIG_DEVTMPFS y
+require_config CONFIG_DEVTMPFS_MOUNT y
+require_config CONFIG_SERIAL_IMX y
+require_config CONFIG_SERIAL_IMX_CONSOLE y
+require_config CONFIG_RD_GZIP y
+require_config CONFIG_KERNEL_GZIP y
+require_config CONFIG_INITRAMFS_COMPRESSION_GZIP y
+require_config CONFIG_PROC_FS y
+require_config CONFIG_SYSFS y
+require_config CONFIG_AUTO_ZRELADDR y
+require_config CONFIG_CMDLINE_FROM_BOOTLOADER y
+require_config CONFIG_CMDLINE '"console=ttymxc0,115200"'
+grep -Eq '^CONFIG_INITRAMFS_SOURCE=".*rootfs\.cpio"$' "$kernel/.config"
+
+dtc="$kernel/scripts/dtc/dtc"
+test -x "$dtc" || { echo "missing host dtc: $dtc" >&2; exit 1; }
+"$dtc" -q -I dtb -O dts "$dtb" > "$probe/imx6ull-alpha.dts"
+python3 "$project_root/scripts/verify-m2-images.py" "$output" "$LINUX_VERSION"
+
+file "$images/zImage" "$dtb" "$images/rootfs.cpio" "$images/rootfs.cpio.gz"
+python3 "$project_root/scripts/verify-rootfs.py" \
+    "$images/rootfs.cpio" "$images/rootfs.cpio.gz" "$BUILDROOT_VERSION"
+sha256sum "$images/zImage" "$dtb" "$images/rootfs.cpio" \
+    "$images/rootfs.cpio.gz" "$output/.config" "$kernel/.config"
+printf 'M2 host checks passed. Board RAM boot remains to be recorded.\n'

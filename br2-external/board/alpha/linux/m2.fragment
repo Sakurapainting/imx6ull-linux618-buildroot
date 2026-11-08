@@ -1,0 +1,13 @@
+# Keep the boot console usable when U-Boot does not provide bootargs.
+CONFIG_CMDLINE="console=ttymxc0,115200"
+
+# M2 runs entirely from the kernel's built-in initramfs.
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_COMPRESSION_GZIP=y
+CONFIG_RD_GZIP=y
+
+# These are required in the kernel image, not as modules.
+CONFIG_DEVTMPFS=y
+CONFIG_DEVTMPFS_MOUNT=y
+CONFIG_SERIAL_IMX=y
+CONFIG_SERIAL_IMX_CONSOLE=y

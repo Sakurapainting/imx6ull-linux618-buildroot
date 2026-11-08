@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ "$project_root" != /work ]]; then
+    exec "$project_root/scripts/env" exec env \
+        IMX6ULL_BUILD_OUTPUT=/work/output/m2 \
+        /work/scripts/build-m2 "$@"
+fi
+export IMX6ULL_BUILD_OUTPUT="${IMX6ULL_BUILD_OUTPUT:-$project_root/output/m2}"
+exec "$project_root/scripts/build" "$@"
