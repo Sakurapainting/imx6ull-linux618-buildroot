@@ -1,0 +1,31 @@
+#!/bin/sh
+# Only use this diagnostic with the separately loaded RAM rootfs.
+set -eu
+root_type=$(awk '$2 == "/" {print $3}' /proc/mounts)
+if [ "$root_type" != rootfs ]; then
+    echo 'Run from the M3 diagnostic initramfs (rootfs on /).' >&2
+    exit 1
+fi
+found=0
+for disk in /dev/mmcblk[0-9]*; do
+    [ -b "$disk" ] || continue
+    blockdev --setro "$disk"
+    [ "$(blockdev --getro "$disk")" = 1 ]
+    found=1
+    echo "$disk: read-only"
+done
+if [ "$found" != 1 ]; then
+    echo 'No MMC block device found.' >&2
+    exit 1
+fi
+uname -r
+cat /proc/cmdline
+mount
+cat /proc/partitions
+for disk in /sys/class/block/mmcblk[0-9]; do
+    [ -d "$disk" ] || continue
+    echo "$disk"
+    cat "$disk/device/type" "$disk/device/name" "$disk/device/cid"
+done
+blkid
+dmesg | grep -E 'mmc|sdhci|ext4|EXT4' || true

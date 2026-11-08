@@ -1,0 +1,9 @@
+74dab91e0aaea2efc153992590bc613cb7ffc254cab0bd09b07401e117b42f45  output/m3/images/zImage
+f42655f1da263e718111213271c864a65a2666344ac0f20c7b4e070b5f2fee42  output/m3/images/imx6ull-alpha-m3.dtb
+4b388e06aaf847776958355f1cd2b303ca6efdc30bd184c9a4000af21b07ba61  output/m3/images/rootfs.ext4
+ff511453116c8b6f31c001657194120e0b1601152a767ab7c524224f085038f0  output/m3/images/rootfs.tar
+705c835d9bf46ee302932efe1b0831140a5d03001adbd4a26707bee5d4748dfa  output/m3/images/rootfs.cpio
+30ab9513889a354335383f0e781a77f3a18e6a3d95c1cebfc8ccfb01fb2273aa  output/m3/images/rootfs.cpio.gz
+82825717a69f1bcb474f6e1fa22fa4ab5d88d5b88d3d11dcfc74d73d61235424  output/m3/images/rootfs.cpio.uboot
+c4cc1417efb80521a1e6d2d0d2dbf9293dfa75b88f35f47acc3cd270c3a84cfa  output/m3/.config
+bbd71b3cbd77b627f93af8cdfd1a3ec64e099f79382d7568bd7b931e08d18948  output/m3/build/linux-6.18.62/.config

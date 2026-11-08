@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ "$project_root" != /work ]]; then
+    exec "$project_root/scripts/env" exec /work/scripts/verify-m3 "$@"
+fi
+source "$project_root/versions.env"
+output="${IMX6ULL_BUILD_OUTPUT:-$project_root/output/m3}"
+images="$output/images"
+kernel="$output/build/linux-$LINUX_VERSION"
+for path in "$output/.config" "$kernel/.config" "$images/zImage" \
+    "$images/imx6ull-alpha-m3.dtb" "$images/rootfs.ext4" \
+    "$images/rootfs.tar" "$images/rootfs.cpio" "$images/rootfs.cpio.gz" \
+    "$images/rootfs.cpio.uboot"; do
+    test -s "$path" || { echo "missing or empty: $path" >&2; exit 1; }
+done
+python3 "$project_root/scripts/verify-m3-images.py" "$output" "$LINUX_VERSION"
+python3 "$project_root/scripts/verify-rootfs.py" \
+    "$images/rootfs.cpio" "$images/rootfs.cpio.gz" "$BUILDROOT_VERSION"
+"$output/host/sbin/e2fsck" -fn "$images/rootfs.ext4"
+python3 - "$output" <<'PY'
+import subprocess
+import sys
+from pathlib import Path
+output = Path(sys.argv[1])
+image = output / 'images/rootfs.ext4'
+busybox_configs = list((output / 'build').glob('busybox-*/.config'))
+assert len(busybox_configs) == 1
+busybox_config = busybox_configs[0].read_text().splitlines()
+assert 'CONFIG_BLOCKDEV=y' in busybox_config
+assert 'CONFIG_FEATURE_BLKID_TYPE=y' in busybox_config
+def debug(command):
+    return subprocess.check_output([
+        str(output / 'host/sbin/debugfs'), '-R', command, str(image)
+    ], text=True, stderr=subprocess.DEVNULL)
+for name in ('/bin/busybox', '/lib/libc.so', '/etc/inittab', '/etc/passwd'):
+    result = debug(f'stat {name}')
+    assert 'Type: regular' in result, f'missing regular file in ext4: {name}'
+    assert 'User:     0   Group:     0' in result, f'wrong owner in ext4: {name}'
+assert 'Fast link dest: "../bin/busybox"' in debug('stat /sbin/init')
+inittab = [line.split('#', 1)[0].split() for line in debug('cat /etc/inittab').splitlines()]
+assert ['ttymxc0::respawn:/sbin/getty', '-L', 'ttymxc0', '115200', 'vt100'] in inittab
+assert 'ALPHA i.MX6ULL M3 storage bring-up' in debug('cat /etc/issue')
+assert '/dev/root / ext4 rw,noauto 0 1' in debug('cat /etc/fstab')
+helper = debug('stat /usr/sbin/m3-storage-report')
+assert 'Type: regular' in helper and '0755' in helper
+print('ext4: root-owned BusyBox, libc, init symlink, passwd and serial getty verified')
+PY
+sha256sum "$images/zImage" "$images/imx6ull-alpha-m3.dtb" \
+    "$images/rootfs.ext4" "$images/rootfs.tar" "$images/rootfs.cpio" \
+    "$images/rootfs.cpio.gz" "$images/rootfs.cpio.uboot" \
+    "$output/.config" "$kernel/.config"
+printf 'M3 host checks passed. External-root persistence requires board acceptance.\n'

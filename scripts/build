@@ -13,8 +13,8 @@ output="${IMX6ULL_BUILD_OUTPUT:-$project_root/output/m1}"
 if [[ ! -f "$buildroot/Makefile" ]]; then
     echo 'Prepare verified sources first: scripts/fetch-sources' >&2; exit 1
 fi
-if [[ ! -f "$output/.config" && "${1:-}" != imx6ull_m1_defconfig && "${1:-}" != imx6ull_m2_defconfig ]]; then
-    echo 'Configure first: scripts/build imx6ull_m1_defconfig' >&2; exit 1
+if [[ ! -f "$output/.config" && "${1:-}" != imx6ull_m1_defconfig && "${1:-}" != imx6ull_m2_defconfig && "${1:-}" != imx6ull_m3_defconfig ]]; then
+    echo 'Configure first with imx6ull_m1_defconfig, imx6ull_m2_defconfig or imx6ull_m3_defconfig.' >&2; exit 1
 fi
 # BR2_JLEVEL controls package compilation; avoid top-level parallel make.
 # Extracted release tarballs must not inherit this project's Git version.

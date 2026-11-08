@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+// Retain the accepted M2 memory and UART wiring; add storage for M3.
+#include "imx6ull-alpha.dts"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	reg_sd1_vmmc: regulator-sd1-vmmc {
+		compatible = "regulator-fixed";
+		regulator-name = "VSD_3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+};
+
+&iomuxc {
+	pinctrl_usdhc1_alpha: usdhc1-alpha-grp {
+		fsl,pins = <
+			MX6UL_PAD_SD1_CMD__USDHC1_CMD 0x17059
+			MX6UL_PAD_SD1_CLK__USDHC1_CLK 0x10071
+			MX6UL_PAD_SD1_DATA0__USDHC1_DATA0 0x17059
+			MX6UL_PAD_SD1_DATA1__USDHC1_DATA1 0x17059
+			MX6UL_PAD_SD1_DATA2__USDHC1_DATA2 0x17059
+			MX6UL_PAD_SD1_DATA3__USDHC1_DATA3 0x17059
+			MX6UL_PAD_UART1_RTS_B__GPIO1_IO19 0x17059
+		>;
+	};
+
+	pinctrl_usdhc2_alpha: usdhc2-alpha-grp {
+		fsl,pins = <
+			MX6UL_PAD_NAND_RE_B__USDHC2_CLK 0x10069
+			MX6UL_PAD_NAND_WE_B__USDHC2_CMD 0x17059
+			MX6UL_PAD_NAND_DATA00__USDHC2_DATA0 0x17059
+			MX6UL_PAD_NAND_DATA01__USDHC2_DATA1 0x17059
+			MX6UL_PAD_NAND_DATA02__USDHC2_DATA2 0x17059
+			MX6UL_PAD_NAND_DATA03__USDHC2_DATA3 0x17059
+			MX6UL_PAD_NAND_DATA04__USDHC2_DATA4 0x17059
+			MX6UL_PAD_NAND_DATA05__USDHC2_DATA5 0x17059
+			MX6UL_PAD_NAND_DATA06__USDHC2_DATA6 0x17059
+			MX6UL_PAD_NAND_DATA07__USDHC2_DATA7 0x17059
+		>;
+	};
+};
+
+&usdhc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc1_alpha>;
+	bus-width = <4>;
+	cd-gpios = <&gpio1 19 GPIO_ACTIVE_LOW>;
+	disable-wp;
+	vmmc-supply = <&reg_sd1_vmmc>;
+	no-1-8-v;
+	max-frequency = <50000000>;
+	status = "okay";
+};
+
+&usdhc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc2_alpha>;
+	bus-width = <8>;
+	non-removable;
+	no-1-8-v;
+	max-frequency = <50000000>;
+	status = "okay";
+};

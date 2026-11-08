@@ -1,0 +1,26 @@
+DTB: 512 MiB, UART1, SD 4-bit/CD GPIO1_IO19, eMMC 8-bit, 50 MHz verified
+zImage: 10211984 bytes, no embedded Buildroot cpio; diagnostic ramdisk: 3649428 bytes, U-Boot header/CRC/gzip verified
+RAM kernel: [0x80008000, 0x817a5210)
+RAM zImage: [0x84000000, 0x849bd290)
+RAM DTB: [0x88000000, 0x88005e48)
+RAM ramdisk: [0x89000000, 0x8937af94)
+ext4: 128 MiB, label imx6ull-m3, journal enabled, 64bit feature disabled
+rootfs: 706 entries; gzip matches; system ownership, init, console, getty, loader and shell verified
+e2fsck 1.47.4 (6-Mar-2025)
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+imx6ull-m3: 715/32768 files (0.4% non-contiguous), 23835/131072 blocks
+ext4: root-owned BusyBox, libc, init symlink, passwd and serial getty verified
+74dab91e0aaea2efc153992590bc613cb7ffc254cab0bd09b07401e117b42f45  /work/output/m3/images/zImage
+f42655f1da263e718111213271c864a65a2666344ac0f20c7b4e070b5f2fee42  /work/output/m3/images/imx6ull-alpha-m3.dtb
+4b388e06aaf847776958355f1cd2b303ca6efdc30bd184c9a4000af21b07ba61  /work/output/m3/images/rootfs.ext4
+ff511453116c8b6f31c001657194120e0b1601152a767ab7c524224f085038f0  /work/output/m3/images/rootfs.tar
+705c835d9bf46ee302932efe1b0831140a5d03001adbd4a26707bee5d4748dfa  /work/output/m3/images/rootfs.cpio
+30ab9513889a354335383f0e781a77f3a18e6a3d95c1cebfc8ccfb01fb2273aa  /work/output/m3/images/rootfs.cpio.gz
+82825717a69f1bcb474f6e1fa22fa4ab5d88d5b88d3d11dcfc74d73d61235424  /work/output/m3/images/rootfs.cpio.uboot
+c4cc1417efb80521a1e6d2d0d2dbf9293dfa75b88f35f47acc3cd270c3a84cfa  /work/output/m3/.config
+bbd71b3cbd77b627f93af8cdfd1a3ec64e099f79382d7568bd7b931e08d18948  /work/output/m3/build/linux-6.18.62/.config
+M3 host checks passed. External-root persistence requires board acceptance.
